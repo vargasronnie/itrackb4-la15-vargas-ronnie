@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\Cuisine;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class RecipeController extends Controller
     {
         $cuisineId = $request->query('cuisine_id');
 
-        $query = Recipe::with('cuisine');
+        $query = Recipe::withh('cuisine');
 
         if ($cuisineId) {
             $query = $query->where('cuisine_id', $cuisineId);
@@ -33,14 +34,23 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'time' => 'required',
+            'name'       => 'required|max:50',
+            'category'   => 'required|in:Main Course,Dessert,Appetizer',
             'cuisine_id' => 'required|exists:cuisines,id',
+            'time'       => 'required|integer|min:1|max:300',
+            'difficulty' => 'required|in:Easy,Medium,Hard',
+            'servings'   => 'required|integer|min:1|max:20',
         ]);
 
-        Recipe::create($validated);
+        $recipe = Recipe::create($validated);
 
-        return redirect()->route('recipes.index');
+        Log::info('Recipe saved', [
+            'id' => $recipe->id,
+        ]);
+
+        return redirect()
+            ->route('recipes.index')
+            ->with('success', 'Recipe added successfully');
     }
 
     public function show(Recipe $recipe)
@@ -70,6 +80,8 @@ class RecipeController extends Controller
 
     public function destroy(Recipe $recipe)
     {
+        abort_if($recipe->cuisine->recipes()->count() === 1, 403);
+
         $recipe->delete();
 
         return redirect()->route('recipes.index');

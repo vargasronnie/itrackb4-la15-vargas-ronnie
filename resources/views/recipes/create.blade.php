@@ -29,6 +29,28 @@
         </div>
 
         <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+
+            <select
+                name="category"
+                id="category"
+                class="form-select @error('category') is-invalid @enderror"
+            >
+                <option value="">Select Category</option>
+
+                @foreach (['Main Course', 'Dessert', 'Appetizer'] as $category)
+                    <option value="{{ $category }}"
+                        @selected(old('category') == $category)
+                    >{{ $category }}</option>
+                @endforeach
+            </select>
+
+            @error('category')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
             <label for="cuisine_id" class="form-label">Cuisine</label>
 
             <select
@@ -62,6 +84,44 @@
             >
 
             @error('time')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="difficulty" class="form-label">Difficulty</label>
+
+            <select
+                name="difficulty"
+                id="difficulty"
+                class="form-select @error('difficulty') is-invalid @enderror"
+            >
+                <option value="">Select Difficulty</option>
+
+                @foreach (['Easy', 'Medium', 'Hard'] as $difficulty)
+                    <option value="{{ $difficulty }}"
+                        @selected(old('difficulty') == $difficulty)
+                    >{{ $difficulty }}</option>
+                @endforeach
+            </select>
+
+            @error('difficulty')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="servings" class="form-label">Servings</label>
+
+            <input
+                type="number"
+                name="servings"
+                id="servings"
+                value="{{ old('servings') }}"
+                class="form-control @error('servings') is-invalid @enderror"
+            >
+
+            @error('servings')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

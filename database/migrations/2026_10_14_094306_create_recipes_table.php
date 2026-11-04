@@ -12,16 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('recipes', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('category');
-        $table->string('cuisine');
-        $table->integer('time');
-        $table->string('difficulty');
-        $table->integer('servings');
-        $table->text('notes')->nullable();
-        $table->timestamps();
-    });
+            $table->id();
+            $table->string('name');
+            $table->string('category');
+            $table->string('cuisine');
+            $table->integer('time');
+            $table->string('difficulty');
+            $table->integer('servings');
+            $table->boolean('is_vegetarian')->default(false);
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
