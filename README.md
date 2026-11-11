@@ -1,13 +1,13 @@
-# ITRACKB4 LA12:
+# ITRACKB4 LA13:
 
-H1: The top of your error page named a file inside vendor. Say why that was not where your mistake was, and where the page showed you it actually was.
+J1: Your HomeController is not a resource controller. Name two things an index() on a resource controller does that yours does not have to.
 
-The top of the error page named a file inside vendor, which is Laravel’s own code, so the mistake wasn’t in Laravel. The real cause was in my own code: the trace showed the frame in app\Http\Controllers\RecipeController.php at index(), where I had added an extra letter to the with() method name.
+A resource controller’s index() loads a collection of records for a list page, and it’s the entry point for browsing them. My HomeController only returns the front page with two counts, so it doesn’t need to load a list of records or handle the other resource actions, such as create(), store(), edit(), update(), and destroy().
 
-H2: You wrote one Log::info line with a context array. Name something it will tell you next month that the error page could not.
+J2: Your pagination links lost the search term until you added one method. Say what those links contained before, and what the controller therefore received.
 
-The error page shows only what happened at that moment, and it’s gone once I reload. The Recipe saved line stays in laravel.log, so next month it will tell me which recipe was saved, when it was saved, and its id, which I can use to find that record in the database.
+Before I added withQueryString(), the page 2 link contained only ?page=2, so the search term was dropped. The controller therefore received only the page number, and it returned every recipe instead of the matches. withQueryString() copies the current query parameters, such as search, into each pagination link, so the controller receives both values.
 
-H3: Your guard answers with 403 instead of redirecting back with a message. Say when each of the two is the better answer.
+J3: A misspelled sort value does not break your page. Explain why that is worse than an error, and what your allowed list does about it.
 
-A 403 is the better answer when the request shouldn’t be allowed at all, such as deleting the last recipe in a cuisine, because the user should not be able to do it by any route. A redirect back with a message is better when the user made a mistake they can fix, such as submitting a form with a missing field, so they can correct it and try again.
+A misspelled sort value like nmae doesn’t produce an error, so nobody notices the sort isn’t working, and the list just comes back in no particular order. An error would at least be reported, while this silent failure goes unnoticed and could behave differently on another database. My allowed list checks the value against ['name', 'time'] before it reaches orderBy(), and falls back to name if it isn’t on the list.

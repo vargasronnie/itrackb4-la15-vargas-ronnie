@@ -10,19 +10,44 @@ use Illuminate\Http\Request;
 class RecipeController extends Controller
 {
     public function index(Request $request)
-    {
-        $cuisineId = $request->query('cuisine_id');
+{
+    $search     = $request->query('search');
+    $cuisineId  = $request->query('cuisine_id');
+    $vegetarian = $request->query('is_vegetarian');
+    $sort       = $request->query('sort', 'name');
 
-        $query = Recipe::withh('cuisine');
-
-        if ($cuisineId) {
-            $query = $query->where('cuisine_id', $cuisineId);
-        }
-
-        $recipes = $query->get();
-
-        return view('recipes.index', compact('recipes'));
+    // Part I: only allowed columns can reach orderBy
+    $allowedSorts = ['name', 'time'];
+    if (! in_array($sort, $allowedSorts)) {
+        $sort = 'name';
     }
+
+    $query = Recipe::with('cuisine');
+
+    if ($search) {
+        $query->where('name', 'like', "%{$search}%");
+    }
+
+    if ($cuisineId) {
+        $query->where('cuisine_id', $cuisineId);
+    }
+
+    // Part H: compare properly, because "0" (No) is falsy in PHP
+    if ($vegetarian !== null && $vegetarian !== '') {
+        $query->where('is_vegetarian', (bool) $vegetarian);
+    }
+
+    $recipes = $query->orderBy($sort)->paginate(10)->withQueryString();
+
+    return view('recipes.index', [
+        'recipes'    => $recipes,
+        'cuisines'   => Cuisine::all(),
+        'search'     => $search,
+        'cuisineId'  => $cuisineId,
+        'vegetarian' => $vegetarian,
+        'sort'       => $sort,
+    ]);
+}
 
     public function create()
     {
