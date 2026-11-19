@@ -7,9 +7,11 @@
 
     <h1>My Recipe List</h1>
 
+    @auth
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ Add Recipe</a>
     </div>
+    @endauth
 
     <form method="GET" action="{{ route('recipes.index') }}" class="card card-body mb-4">
         <div class="row g-2 align-items-end">

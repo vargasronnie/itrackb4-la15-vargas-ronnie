@@ -1,13 +1,19 @@
-# ITRACKB4 LA13:
+# ITRACKB4 LA14:
 
-J1: Your HomeController is not a resource controller. Name two things an index() on a resource controller does that yours does not have to.
+F1: Authentication and authorisation are not the same. In one sentence each: what did this lesson give you, and what is still missing next meeting?
+Authentication is proving who you are, and this lesson gave me register, login, and logout, so visitors can create accounts and sign in. Authorisation is deciding what a signed-in user may do, and that is still missing, since every signed-in user can currently edit or delete any recipe.
 
-A resource controller’s index() loads a collection of records for a list page, and it’s the entry point for browsing them. My HomeController only returns the front page with two counts, so it doesn’t need to load a list of records or handle the other resource actions, such as create(), store(), edit(), update(), and destroy().
+F2: Why does a successful login call session()->regenerate()? What goes wrong if you skip it?
+Calling regenerate() gives the session a new ID at the moment of login, so an ID that an attacker planted before login becomes useless. Without it, a session-fixation attack could let someone who knows the old ID take over the account once the victim signs in.
 
-J2: Your pagination links lost the search term until you added one method. Say what those links contained before, and what the controller therefore received.
+F3: Why does a failed login use the same message for a wrong password and an unknown email?
+Showing different messages would tell a stranger which emails are registered, which helps them target real accounts. Returning one generic message, “The provided credentials do not match our records.”, means both cases look identical from outside.
 
-Before I added withQueryString(), the page 2 link contained only ?page=2, so the search term was dropped. The controller therefore received only the page number, and it returned every recipe instead of the matches. withQueryString() copies the current query parameters, such as search, into each pagination link, so the controller receives both values.
+F4: Why do index and show stay public while create/edit/update/destroy use auth?
+The list and detail pages are the catalogue, and guests should be able to browse it without an account. Creating, changing, and deleting recipes change the data, so those five actions are the ones that need a signed-in user.
 
-J3: A misspelled sort value does not break your page. Explain why that is worse than an error, and what your allowed list does about it.
+F5: You hid Add (and actions) for guests. Why is that not enough to secure those actions? What actually stops a stranger?
+Hiding a button only changes what the page shows, so a stranger can still type the URL or send a request directly. The auth middleware in routes/web.php is what actually stops them, because it redirects any guest to login before the controller runs.
 
-A misspelled sort value like nmae doesn’t produce an error, so nobody notices the sort isn’t working, and the list just comes back in no particular order. An error would at least be reported, while this silent failure goes unnoticed and could behave differently on another database. My allowed list checks the value against ['name', 'time'] before it reaches orderBy(), and falls back to name if it isn’t on the list.
+F6: In screenshot 20 the route name was wrong. Why does auth middleware care that the route is named exactly login?
+When a guest is blocked, the auth middleware redirects them to the route named login, looking it up by name rather than by URL. If the name is wrong, Laravel can’t find the route and throws Route [login] not defined, so the redirect fails.
