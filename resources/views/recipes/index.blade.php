@@ -5,13 +5,17 @@
 @section('content')
 <div class="container mt-4">
 
-    <h1>My Recipe List</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">My Recipe List</h1>
 
-    @auth
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ Add Recipe</a>
+        @can('create', App\Models\Recipe::class)
+            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ Add Recipe</a>
+        @endcan
     </div>
-    @endauth
+
+    @cannot('create', App\Models\Recipe::class)
+        <p class="text-muted small">You are viewing this list in read-only mode.</p>
+    @endcannot
 
     <form method="GET" action="{{ route('recipes.index') }}" class="card card-body mb-4">
         <div class="row g-2 align-items-end">
@@ -65,6 +69,9 @@
                 <th>Cuisine</th>
                 <th>Time</th>
                 <th>Difficulty</th>
+                @can('create', App\Models\Recipe::class)
+                    <th>Action</th>
+                @endcan
             </tr>
         </thead>
         <tbody>
@@ -78,16 +85,34 @@
                     <td>{{ $recipe->cuisine->name }}</td>
                     <td>{{ $recipe->time }}</td>
                     <td>{{ $recipe->difficulty }}</td>
+
+                    @canany(['update', 'delete'], $recipe)
+                        <td>
+                            @can('update', $recipe)
+                                <a href="{{ route('recipes.edit', $recipe) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            @endcan
+
+                            @can('delete', $recipe)
+                                <form method="POST" action="{{ route('recipes.destroy', $recipe) }}" class="d-inline"
+                                      onsubmit="return confirm('Delete this recipe?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            @endcan
+                        </td>
+                    @endcanany
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-muted">No recipes found matching your filters.</td>
+                    <td colspan="{{ Gate::check('create', App\Models\Recipe::class) ? 7 : 6 }}" class="text-center text-muted">
+                        No recipes found matching your filters.
+                    </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
-    {{-- Part G: links after the table, not inside it --}}
     {{ $recipes->links() }}
 
 </div>

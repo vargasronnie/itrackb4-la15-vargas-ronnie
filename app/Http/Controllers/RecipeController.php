@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cuisine;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class RecipeController extends Controller
@@ -49,6 +50,8 @@ class RecipeController extends Controller
 
     public function create()
     {
+        Gate::authorize('create', Recipe::class);
+
         return view('recipes.create', [
             'cuisines' => Cuisine::all(),
         ]);
@@ -56,6 +59,8 @@ class RecipeController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', Recipe::class);
+
         $validated = $request->validate([
             'name'       => 'required|max:50',
             'category'   => 'required|in:Main Course,Dessert,Appetizer',
@@ -81,6 +86,8 @@ class RecipeController extends Controller
 
     public function edit(Recipe $recipe)
     {
+        Gate::authorize('update', $recipe);
+
         $cuisines = Cuisine::all();
 
         return view('recipes.edit', compact('recipe', 'cuisines'));
@@ -88,6 +95,8 @@ class RecipeController extends Controller
 
     public function update(Request $request, Recipe $recipe)
     {
+        Gate::authorize('update', $recipe);
+
         $validated = $request->validate([
             'name'       => 'required|max:50',
             'time'       => 'required|integer|min:1|max:300',
@@ -102,6 +111,8 @@ class RecipeController extends Controller
 
     public function destroy(Recipe $recipe)
     {
+        Gate::authorize('delete', $recipe);
+
         abort_if($recipe->cuisine->recipes()->count() === 1, 403);
 
         $recipe->delete();
